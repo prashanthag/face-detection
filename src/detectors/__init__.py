@@ -6,6 +6,7 @@ from .mediapipe_det import MediaPipeDetector
 from .mtcnn_det import MTCNNDetector
 from .scrfd_det import SCRFDDetector
 from .yunet_det import YuNetDetector
+from .retinaface_det import RetinaFaceDetector
 from .gpu_utils import get_gpu_info, print_gpu_info
 
 DETECTORS = {
@@ -14,6 +15,7 @@ DETECTORS = {
     'mtcnn': MTCNNDetector,
     'scrfd': SCRFDDetector,
     'yunet': YuNetDetector,
+    'retinaface': RetinaFaceDetector,
 }
 
 def get_detector(method: str, **kwargs):

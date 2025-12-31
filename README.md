@@ -49,7 +49,7 @@ python src/face_blur.py [options]
 
 | Option | Description |
 |--------|-------------|
-| `-m METHOD` | Detection: `opencv`, `mediapipe` (default), `mtcnn`, `scrfd`, `yunet` |
+| `-m METHOD` | Detection: `opencv`, `mediapipe` (default), `mtcnn`, `scrfd`, `yunet`, `retinaface` |
 | `-k MASK` | Mask type: `black` (default), `blur`, `pixelate`, `color` |
 | `-s SOURCE` | Input: webcam index (0), RTSP URL, or video file |
 | `-c FLOAT` | Confidence threshold (default: 0.5) |
