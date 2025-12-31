@@ -36,6 +36,9 @@ wget -P models/ https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_d
 
 # SCRFD (required for scrfd method)
 wget -P models/ https://huggingface.co/MonsterMMORPG/SCRFD/resolve/main/scrfd_10g_320_batch.onnx
+
+# YuNet (required for yunet method) - lightweight, fast
+wget -P models/ https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx
 ```
 
 ## Usage
@@ -46,7 +49,7 @@ python src/face_blur.py [options]
 
 | Option | Description |
 |--------|-------------|
-| `-m METHOD` | Detection: `opencv`, `mediapipe` (default), `mtcnn`, `scrfd` |
+| `-m METHOD` | Detection: `opencv`, `mediapipe` (default), `mtcnn`, `scrfd`, `yunet` |
 | `-k MASK` | Mask type: `black` (default), `blur`, `pixelate`, `color` |
 | `-s SOURCE` | Input: webcam index (0), RTSP URL, or video file |
 | `-c FLOAT` | Confidence threshold (default: 0.5) |
