@@ -70,7 +70,8 @@ class YuNetDetector(BaseDetector):
                 # Landmarks (5 points: right eye, left eye, nose, right mouth, left mouth)
                 landmarks = det[4:14].reshape(5, 2) if len(det) > 4 else None
 
-                if x2 > x1 and y2 > y1:
+                # Filter small boxes (likely false positives)
+                if bw > 40 and bh > 40:
                     faces.append(Face(x1, y1, x2, y2, conf, landmarks))
 
         return faces

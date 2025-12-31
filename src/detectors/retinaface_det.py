@@ -151,7 +151,9 @@ class RetinaFaceDetector(BaseDetector):
             x1, y1 = max(0, x1), max(0, y1)
             x2, y2 = min(w, x2), min(h, y2)
 
-            if x2 > x1 and y2 > y1:
+            # Filter small boxes (likely false positives)
+            box_w, box_h = x2 - x1, y2 - y1
+            if box_w > 40 and box_h > 40:
                 faces.append(Face(x1, y1, x2, y2, float(conf)))
 
         return faces
