@@ -71,7 +71,9 @@ class MTCNNDetector(BaseDetector):
 
                 lm = landmarks[i] if landmarks is not None else None
 
-                if x2 > x1 and y2 > y1:
+                # Filter small boxes (likely false positives)
+                box_w, box_h = x2 - x1, y2 - y1
+                if box_w > 40 and box_h > 40:
                     faces.append(Face(x1, y1, x2, y2, float(prob), lm))
 
         return faces
