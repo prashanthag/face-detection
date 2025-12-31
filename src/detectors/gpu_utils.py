@@ -129,9 +129,3 @@ def print_gpu_info():
     else:
         name = info.get('gpu_name', info['type'].upper())
         print(f"[GPU] Detected: {name} ({info['type']})")
-        # Show ONNX provider
-        onnx_gpu = info['onnx_providers'][0]
-        if onnx_gpu != 'CPUExecutionProvider':
-            print(f"[ONNX] Using: {onnx_gpu}")
-        else:
-            print("[ONNX] GPU not available, using CPU")
