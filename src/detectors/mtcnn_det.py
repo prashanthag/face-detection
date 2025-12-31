@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from typing import List
 from .base import BaseDetector, Face
+from .gpu_utils import get_gpu_info
 
 try:
     from facenet_pytorch import MTCNN
@@ -23,7 +24,7 @@ class MTCNNDetector(BaseDetector):
             confidence: Min detection confidence
             max_faces: Max faces to detect
             min_face_size: Minimum face size in pixels
-            device: 'cuda' or 'cpu' (auto-detect if None)
+            device: 'cuda', 'mps', or 'cpu' (auto-detect if None)
         """
         super().__init__(confidence, max_faces)
         self.name = "mtcnn"
@@ -31,8 +32,13 @@ class MTCNNDetector(BaseDetector):
         if not MTCNN_AVAILABLE:
             raise ImportError("MTCNN not installed. Run: pip install facenet-pytorch")
 
+        # Auto-detect GPU
         if device is None:
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            gpu_info = get_gpu_info()
+            device = gpu_info['device']
+            # MTCNN supports cuda and mps
+            if device not in ('cuda', 'mps'):
+                device = 'cpu'
 
         self.device = device
         self.mtcnn = MTCNN(

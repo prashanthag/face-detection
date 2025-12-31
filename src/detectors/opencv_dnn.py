@@ -5,6 +5,7 @@ import numpy as np
 import os
 from typing import List
 from .base import BaseDetector, Face
+from .gpu_utils import get_opencv_gpu_backend
 
 
 class OpenCVDetector(BaseDetector):
@@ -23,7 +24,17 @@ class OpenCVDetector(BaseDetector):
             raise FileNotFoundError(f"OpenCV model not found in {model_dir}")
 
         self.net = cv2.dnn.readNetFromCaffe(prototxt, caffemodel)
-        print(f"[OpenCV] Loaded DNN face detector (conf={confidence})")
+
+        # Set GPU backend if available
+        backend, target = get_opencv_gpu_backend()
+        try:
+            self.net.setPreferableBackend(backend)
+            self.net.setPreferableTarget(target)
+            backend_name = "CUDA" if target == cv2.dnn.DNN_TARGET_CUDA else "CPU"
+        except:
+            backend_name = "CPU"
+
+        print(f"[OpenCV] Loaded DNN face detector (conf={confidence}, backend={backend_name})")
 
     def detect(self, frame: np.ndarray) -> List[Face]:
         h, w = frame.shape[:2]

@@ -5,6 +5,7 @@ from .opencv_dnn import OpenCVDetector
 from .mediapipe_det import MediaPipeDetector
 from .mtcnn_det import MTCNNDetector
 from .scrfd_det import SCRFDDetector
+from .gpu_utils import get_gpu_info, print_gpu_info
 
 DETECTORS = {
     'opencv': OpenCVDetector,

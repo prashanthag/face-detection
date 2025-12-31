@@ -17,7 +17,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(__file__))
-from detectors import get_detector, list_methods
+from detectors import get_detector, list_methods, print_gpu_info
 
 
 def mask_faces(frame, faces, expansion=1.3, method='black', blur_strength=51, color=(0,0,0)):
@@ -123,6 +123,9 @@ Examples:
         for m in methods:
             print(f"  - {m}")
         return
+
+    # Print GPU info
+    print_gpu_info()
 
     # Parse source
     try:

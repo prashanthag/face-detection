@@ -5,6 +5,7 @@ import numpy as np
 import os
 from typing import List
 from .base import BaseDetector, Face
+from .gpu_utils import get_gpu_info
 
 try:
     import onnxruntime as ort
@@ -44,13 +45,18 @@ class SCRFDDetector(BaseDetector):
         self._num_anchors = 2
         self._center_cache = {}
 
-        # Load ONNX model
-        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        # Get GPU-optimized providers
+        gpu_info = get_gpu_info()
+        providers = gpu_info['onnx_providers']
+
+        # Load ONNX model with best available provider
         self.session = ort.InferenceSession(model_path, providers=providers)
         self.input_name = self.session.get_inputs()[0].name
         self.output_names = [o.name for o in self.session.get_outputs()]
 
-        print(f"[SCRFD] Loaded {os.path.basename(model_path)} (conf={confidence})")
+        # Report which provider is actually being used
+        active_provider = self.session.get_providers()[0]
+        print(f"[SCRFD] Loaded {os.path.basename(model_path)} (conf={confidence}, provider={active_provider})")
 
     def _preprocess(self, frame: np.ndarray):
         """Preprocess frame for SCRFD."""

@@ -1,6 +1,15 @@
 # Face Blur
 
-Multi-method face detection and masking for video streams.
+Multi-method face detection and masking for video streams with automatic GPU detection.
+
+## GPU Support
+
+Automatically detects and uses:
+- NVIDIA CUDA
+- Apple Metal (MPS)
+- AMD ROCm
+- Intel OpenVINO
+- DirectML (Windows)
 
 ## Install
 
