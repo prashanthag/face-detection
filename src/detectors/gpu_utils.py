@@ -4,6 +4,22 @@ import os
 import sys
 
 
+def _get_onnx_providers():
+    """Get actually available ONNX Runtime providers."""
+    try:
+        import onnxruntime as ort
+        available = ort.get_available_providers()
+        # Prefer GPU providers in order
+        preferred = ['CUDAExecutionProvider', 'TensorrtExecutionProvider',
+                     'ROCMExecutionProvider', 'DmlExecutionProvider',
+                     'CoreMLExecutionProvider', 'OpenVINOExecutionProvider']
+        providers = [p for p in preferred if p in available]
+        providers.append('CPUExecutionProvider')
+        return providers
+    except ImportError:
+        return ['CPUExecutionProvider']
+
+
 def get_available_gpu():
     """
     Detect available GPU and return info.
@@ -11,23 +27,23 @@ def get_available_gpu():
     Returns:
         dict with keys: type, device, onnx_providers
     """
+    # Get actual ONNX providers
+    onnx_providers = _get_onnx_providers()
+
     gpu_info = {
         'type': 'cpu',
         'device': 'cpu',
-        'onnx_providers': ['CPUExecutionProvider'],
+        'onnx_providers': onnx_providers,
         'opencv_backend': None,
         'opencv_target': None,
     }
 
-    # Check CUDA (NVIDIA)
+    # Check CUDA (NVIDIA) via PyTorch
     try:
         import torch
         if torch.cuda.is_available():
             gpu_info['type'] = 'cuda'
             gpu_info['device'] = 'cuda'
-            gpu_info['onnx_providers'] = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-            gpu_info['opencv_backend'] = 'CUDA'
-            gpu_info['opencv_target'] = 'CUDA'
             gpu_info['gpu_name'] = torch.cuda.get_device_name(0)
             return gpu_info
     except ImportError:
@@ -39,7 +55,6 @@ def get_available_gpu():
         if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             gpu_info['type'] = 'mps'
             gpu_info['device'] = 'mps'
-            gpu_info['onnx_providers'] = ['CoreMLExecutionProvider', 'CPUExecutionProvider']
             gpu_info['gpu_name'] = 'Apple Metal'
             return gpu_info
     except ImportError:
@@ -51,51 +66,24 @@ def get_available_gpu():
         if hasattr(torch.version, 'hip') and torch.version.hip is not None:
             gpu_info['type'] = 'rocm'
             gpu_info['device'] = 'cuda'  # ROCm uses cuda device in PyTorch
-            gpu_info['onnx_providers'] = ['ROCMExecutionProvider', 'CPUExecutionProvider']
             gpu_info['gpu_name'] = 'AMD ROCm'
             return gpu_info
     except ImportError:
         pass
 
-    # Check DirectML (Windows - AMD/Intel/NVIDIA)
-    if sys.platform == 'win32':
-        try:
-            import onnxruntime as ort
-            providers = ort.get_available_providers()
-            if 'DmlExecutionProvider' in providers:
-                gpu_info['type'] = 'directml'
-                gpu_info['device'] = 'cpu'  # PyTorch still uses CPU
-                gpu_info['onnx_providers'] = ['DmlExecutionProvider', 'CPUExecutionProvider']
-                gpu_info['gpu_name'] = 'DirectML GPU'
-                return gpu_info
-        except ImportError:
-            pass
-
-    # Check OpenVINO (Intel)
-    try:
-        import onnxruntime as ort
-        providers = ort.get_available_providers()
-        if 'OpenVINOExecutionProvider' in providers:
-            gpu_info['type'] = 'openvino'
-            gpu_info['device'] = 'cpu'
-            gpu_info['onnx_providers'] = ['OpenVINOExecutionProvider', 'CPUExecutionProvider']
-            gpu_info['gpu_name'] = 'Intel OpenVINO'
-            return gpu_info
-    except ImportError:
-        pass
-
-    # Fallback: check ONNX Runtime available providers
-    try:
-        import onnxruntime as ort
-        providers = ort.get_available_providers()
-        if 'CUDAExecutionProvider' in providers:
-            gpu_info['type'] = 'cuda'
-            gpu_info['device'] = 'cuda'
-            gpu_info['onnx_providers'] = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-            gpu_info['gpu_name'] = 'CUDA (via ONNX)'
-            return gpu_info
-    except ImportError:
-        pass
+    # Check ONNX providers for GPU
+    if 'CUDAExecutionProvider' in onnx_providers:
+        gpu_info['type'] = 'cuda'
+        gpu_info['gpu_name'] = 'CUDA (ONNX)'
+    elif 'DmlExecutionProvider' in onnx_providers:
+        gpu_info['type'] = 'directml'
+        gpu_info['gpu_name'] = 'DirectML'
+    elif 'CoreMLExecutionProvider' in onnx_providers:
+        gpu_info['type'] = 'coreml'
+        gpu_info['gpu_name'] = 'CoreML'
+    elif 'OpenVINOExecutionProvider' in onnx_providers:
+        gpu_info['type'] = 'openvino'
+        gpu_info['gpu_name'] = 'OpenVINO'
 
     return gpu_info
 
@@ -141,3 +129,9 @@ def print_gpu_info():
     else:
         name = info.get('gpu_name', info['type'].upper())
         print(f"[GPU] Detected: {name} ({info['type']})")
+        # Show ONNX provider
+        onnx_gpu = info['onnx_providers'][0]
+        if onnx_gpu != 'CPUExecutionProvider':
+            print(f"[ONNX] Using: {onnx_gpu}")
+        else:
+            print("[ONNX] GPU not available, using CPU")
