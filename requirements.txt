@@ -1,0 +1,20 @@
+# SCRFD-0.5GF Face Detection Requirements
+# Python 3.8+
+
+# Core dependencies
+numpy>=1.20.0
+opencv-python>=4.5.0
+PyYAML>=6.0
+
+# ONNX Runtime (choose one based on your hardware)
+# For CUDA GPU (recommended):
+onnxruntime-gpu>=1.15.0
+
+# For CPU only (uncomment if no GPU):
+# onnxruntime>=1.15.0
+
+# Optional: For model download via insightface
+# insightface>=0.7.0
+
+# Optional: For RTSP streaming with GStreamer
+# PyGObject>=3.40.0  # For GStreamer Python bindings
