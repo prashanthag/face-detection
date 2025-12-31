@@ -15,7 +15,7 @@ Automatically detects and uses:
 
 ```bash
 uv venv .venv && source .venv/bin/activate
-uv pip install opencv-python numpy mediapipe facenet-pytorch onnxruntime
+uv pip install -r requirements.txt
 ```
 
 ## Models
