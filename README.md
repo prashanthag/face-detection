@@ -14,8 +14,15 @@ Automatically detects and uses:
 ## Install
 
 ```bash
+# Standard install
 uv venv .venv && source .venv/bin/activate
 uv pip install -r requirements.txt
+
+# For Jetson/aarch64 with CUDA (use system PyTorch)
+python3 -m venv .venv --system-site-packages
+source .venv/bin/activate
+pip install mediapipe facenet-pytorch onnxruntime
+pip uninstall torch torchvision -y  # Use system CUDA torch
 ```
 
 ## Models
