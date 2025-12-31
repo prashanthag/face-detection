@@ -3,5 +3,3 @@ numpy
 mediapipe
 facenet-pytorch
 onnxruntime
-tensorflow
-retinaface
